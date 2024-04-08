@@ -1,0 +1,4 @@
+#worker nodes
+worker1  ansible_connection=ssh ansible_ssh_user=els  var_hostname=worker1
+worker2  ansible_connection=ssh ansible_ssh_user=els  var_hostname=worker2
+10.10.10.2  ansible_connection=ssh ansible_ssh_user=els  host=10.10.10.2
