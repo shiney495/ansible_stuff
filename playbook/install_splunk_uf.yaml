@@ -1,0 +1,38 @@
+---
+- name: Install Splunk Universal Forwarder
+  hosts: all
+  become: yes
+  become_user: splunk
+  tasks:
+    - name: Download Splunk Universal Forwarder
+      get_url:
+        url: "https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version={{ splunk_uf_version }}"
+        dest: "/tmp/splunkforwarder-{{ splunk_uf_version }}.tar.gz"
+        headers:
+          Cookie: "{{ splunk_cookie }}"
+      vars:
+        splunk_cookie: "SPLUNK_WEBCONF_{{ splunk_admin_username }}={{ splunk_admin_password }}"
+      
+    - name: Extract Splunk Universal Forwarder
+      ansible.builtin.unarchive:
+        src: "/tmp/splunkforwarder-{{ splunk_uf_version }}.tar.gz"
+        dest: "/opt"
+        remote_src: yes
+        creates: "/opt/splunkforwarder/bin/splunk"
+      
+    - name: Set permissions for Splunk Universal Forwarder
+      ansible.builtin.file:
+        path: "/opt/splunkforwarder"
+        owner: splunk
+        group: splunk
+        mode: "0755"
+        recurse: yes
+
+    - name: Start Splunk Universal Forwarder installation
+      ansible.builtin.command: "/opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{ splunk_admin_password }}"
+      
+    - name: Configure Splunk Universal Forwarder to forward logs to Splunk Heavy Forwarder
+      ansible.builtin.command: "/opt/splunkforwarder/bin/splunk add forward-server 192.168.1.100:9997 -auth {{ splunk_admin_username }}:{{ splunk_admin_password }}"
+
+    - name: Restart Splunk Universal Forwarder
+      ansible.builtin.command: "/opt/splunkforwarder/bin/splunk restart"
