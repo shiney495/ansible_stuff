@@ -1,1 +1,2 @@
 ansible all -i inventory -m apt -a name=tmux --become --ask-become-pass
+ansible-playbook -i inventory install_apache.yaml -vvv

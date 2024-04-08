@@ -1,0 +1,13 @@
+---
+- name: Install Apache2
+  hosts: 192*
+  become: yes  # Execute tasks with sudo privileges
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
